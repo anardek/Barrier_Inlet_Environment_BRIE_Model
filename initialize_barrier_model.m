@@ -8,6 +8,7 @@ inlet_model_on = true;
 make_gif = false;
 plot_on = false;
 sedstrat_on = false;
+bseed = false; % KA: boolean for seeding (python test)
 
 %general parameters
 rho_w = 1025; %density water kg/m3
@@ -41,7 +42,7 @@ ny = 1000; %number of alonghsore sections
 
 %timestepping
 dt = 0.05; %years
-nt = 1e5; %number of timesteps
+nt = 1e5;  %number of timesteps
 dtsave = 1e3; %save spacing
 
 
@@ -57,7 +58,7 @@ inlet_asp = sqrt(0.005); %aspect ratio inlet (gamma in swart/zimmerman)
 g = 9.81;
 man_n = 0.05; %sm^-(1/3) manning n (vegetated channel)
 u_e = 1; %ms-1 inlet equilibrium velocity (see swart/zimmerman)
-inlet_max = 1; %maximum number of inlets in the model (mostly for debugging)
+inlet_max = 100; %maximum number of inlets in the model (mostly for debugging)
 marsh_cover = 0.5; %percentage of backbarrier covered by marsh and therefore does not contribute to tidal prism
 
 %new explicit relationship between boundary conditions and inlet area
