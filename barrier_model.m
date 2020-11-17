@@ -62,7 +62,7 @@ if bseed
     wave_ang_save = zeros(nt,1,'single');
 end
 
-if plot_on,
+if plot_on
     fig = figure('color','white','Name',name,'visible','on',...
         'InvertHardCopy', 'off');
     ax = gca;
@@ -75,10 +75,10 @@ if plot_on,
     if make_gif, set(fig,'Visible','off'), end
 end
 
-for i=2:length(t), % years
+for i=2:length(t) % years
 
     %show progress for long runs
-    if ~mod(i,10000),
+    if ~mod(i,10000)
         disp(num2str(i)), end
 
     %sea level
@@ -121,7 +121,7 @@ for i=2:length(t), % years
         %how much q overwash w in total m3/yr
         Qoverwash(i) = sum(dy.*Qow_b./dt);
 
-    else, % KA: changed from 0 to an array of zeros
+    else % KA: changed from 0 to an array of zeros
         x_t_dt = zeros(ny,1);
         x_s_dt = zeros(ny,1);
         x_b_dt = zeros(ny,1);
@@ -156,12 +156,12 @@ for i=2:length(t), % years
         inlet_idx = [inlet_idx num2cell(find(barrier_volume<0)')]; %add drowned barrier to list of inlets
 
         %storm for new inlet every 10 year
-        if mod(t(i),10)<(dt/2) && numel(inlet_idx)<inlet_max,
+        if mod(t(i),10)<(dt/2) && numel(inlet_idx)<inlet_max
 
             %potential basin length
-            if isempty([inlet_idx{:}]),
+            if isempty([inlet_idx{:}])
                 basin_length = Jmin+zeros(ny,1);
-            else,
+            else
                 basin_length = min(min(Jmin,2* dy*abs(bsxfun(@minus,1:ny,reshape(bsxfun(@plus,[-ny 0 ny],[inlet_idx{:}]'),[],1)))))';
             end
 
@@ -189,7 +189,7 @@ for i=2:length(t), % years
         end
 
         %do "fluid mechanics" of inlets
-        if ~isempty(inlet_idx),
+        if ~isempty(inlet_idx)
 
             %sort inlets and find respective tidal prisms
             [inlet_all_idx,inlet_all_idx_idx] = sort(inlet_idx_mat);
@@ -230,11 +230,11 @@ for i=2:length(t), % years
 
         migr_up = zeros(size(inlet_idx)); %array for inlet migration
 
-        for j=1:length(inlet_idx), %inlet morphodynamics per inlet
+        for j=1:length(inlet_idx) %inlet morphodynamics per inlet
 
 
             %breach sediment is added to the flood-tidal delta;
-            if inlet_idx{j}==new_inlet,
+            if inlet_idx{j}==new_inlet
                 new_inlet_idx = mod(new_inlet+(1:wi_cell(j))-2,ny)+1;
                 x_b_fld_dt(new_inlet_idx) = x_b_fld_dt(new_inlet_idx) + ((h_b(new_inlet)+di_eq(j)).*w(new_inlet))./(d_b(new_inlet));
 
@@ -291,10 +291,10 @@ for i=2:length(t), % years
 
             alpha_r(j) = alpha(j)*0.6;
 
-            if Vfld > Vfld_max,
+            if Vfld > Vfld_max
                 delta_r(j) = 0;
 
-            else,
+            else
                 delta_r(j) = ((Ab_nex*(alpha(j)))-(Ab_prv*(beta_r(j))))/Ab_prv;
             end
 
@@ -343,10 +343,10 @@ for i=2:length(t), % years
 
         %inlet statistics
         inlet_age{i} = [i*ones(length(inlet_idx_mat),1,'int32'), int32(inlet_idx_mat')]; %fancy lightweight way to keep track of where inlets are in the model
-        if mod(i,dtsave)==1,
+        if mod(i,dtsave)==1
         inlet_nr(1+fix(i/dtsave)) = length(inlet_idx);
         inlet_migr(1+fix(i/dtsave)) = mean(migr_up./dt);
-        if ~isempty(inlet_idx),
+        if ~isempty(inlet_idx)
             inlet_Qs_in(1+fix(i/dtsave)) = mean(Qs_in);
             inlet_alpha(1+fix(i/dtsave)) = mean(alpha);
             inlet_beta(1+fix(i/dtsave)) = mean(beta);
@@ -357,7 +357,7 @@ for i=2:length(t), % years
         end
 
 
-    else,
+    else
         Qs_in(i)=0;
         delta=0;
         delta_r=0;
@@ -366,7 +366,7 @@ for i=2:length(t), % years
     end
 
     %do implicit thing
-    if ast_model_on,
+    if ast_model_on
         %r_ipl = coast_diff(max(1,min(wave_climl,round(90-theta)))).*dt/2/dy^2;
 
         % [KA]: force shoreline diffusivity to be greater than zero
@@ -378,7 +378,7 @@ for i=2:length(t), % years
         RHS = x_s + r_ipl.*(x_s([2:ny,1]) - 2*x_s + x_s([ny,1:ny-1])) + x_s_dt;
 
         x_s = A\RHS;
-    else,
+    else
         x_s = x_s + x_s_dt;
     end
 
@@ -394,11 +394,11 @@ for i=2:length(t), % years
         idx_fld = find((x_b-x_b_dt-x_b_fld_dt)<bar_strat_x & (x_b-x_b_dt)>bar_strat_x);
         idx_h = (x_b-x_b_dt-x_b_fld_dt)>bar_strat_x & x_s<bar_strat_x;
 
-        if isempty(inlet_idx),
+        if isempty(inlet_idx)
             idx_inl = [];
-        else,
+        else
             idx_inl = zeros(size(1,ny));
-            for j=1:length(inlet_idx),
+            for j=1:length(inlet_idx)
                 idx_inl = idx_inl | (ismembc(1:ny,inlet_idx{j}) & ((x_s(inlet_nex{j})+w_b_crit)>bar_strat_x)  & ((x_s(inlet_nex{j}))<bar_strat_x));
             end
         end
@@ -406,25 +406,25 @@ for i=2:length(t), % years
         d_b_strat = round(mean(d_b)/dz_strat);
         z_strat = round(z/dz_strat);
         a0_strat = round(a0/dz_strat);
-        if ~isempty(idx_bar),
+        if ~isempty(idx_bar)
             for ii=1:length(idx_bar)
                 c_idx(idx_bar(ii),d_b_strat:(a0_strat+z_strat)) = 1;
             end
         end
-        if ~isempty(idx_fld),
+        if ~isempty(idx_fld)
             for ii=1:length(idx_fld)
                 c_idx(idx_fld(ii),d_b_strat:(a0_strat+z_strat)) = 2;
             end
         end
-        if any(idx_h),
+        if any(idx_h)
             c_idx(idx_h,z_strat+(a0_strat:(h_b(idx_h)/dz_strat))) = 3;
         end
-        if any(idx_inl),
+        if any(idx_inl)
             c_idx(idx_inl,max(1,z_strat+(-round(mean(di_eq/dz_strat)):a0_strat))) = 4;
             c_idx(idx_inl,(a0_strat+z_strat):end) = 0;
         end
 
-        if any(inlet_idx_close_mat),
+        if any(inlet_idx_close_mat)
            c_idx(inlet_idx_close_mat,max(1,z_strat+(-round(mean(di_eq/dz_strat)):a0_strat))) = 5;
             c_idx(inlet_idx_close_mat,(a0_strat+z_strat):end) = 0;
         end
@@ -432,7 +432,7 @@ for i=2:length(t), % years
     end
 
     %save variables
-    if mod(i,dtsave)==1,
+    if mod(i,dtsave)==1
         x_t_save(:,1+fix(i/dtsave)) = x_t;
         x_s_save(:,1+fix(i/dtsave)) = x_s;
         x_b_save(:,1+fix(i/dtsave)) = x_b;
@@ -441,9 +441,9 @@ for i=2:length(t), % years
 
     end
 
-    if plot_on && mod(i,100)==1,
+    if plot_on && mod(i,100)==1
 
-        if make_gif,
+        if make_gif
 
             title(['Time: ' num2str(t(i),'%6.0f') 'yr'])
             axis(ax,'auto')
@@ -463,7 +463,7 @@ for i=2:length(t), % years
             %hh(4) = patch(ax,'XData',[0 0 y./1000 1000 1000],'YData',[ymin; x_t(1); x_t; x_t(end); ymin]);
             hh(4) = patch(ax,'XData',[0 0 y./1000 1000 1000],'YData',[-2000; x_t(1); x_t; x_t(end); -2000]);
 
-            for j=1:length(inlet_idx),
+            for j=1:length(inlet_idx)
                 if abs(inlet_idx{j}(end)-inlet_idx{j}(1))>(0.5*dy)
                     continue,
                 end
@@ -478,13 +478,13 @@ for i=2:length(t), % years
 
             [imind,cm] = rgb2ind(frame2im(getframe(fig)),256);
 
-            if i == 101;
+            if i == 101
                 imwrite(imind,cm,[name '.gif'],'gif', 'Loopcount',inf,'DelayTime',1/15);
             else
                 imwrite(imind,cm,[name '.gif'],'gif','WriteMode','append','DelayTime',1/50);
             end
 
-        else,
+        else
             plot(ax,y./1000,[x_t, x_s, x_b],'-',y([inlet_idx{:} find(barrier_volume<0)'])./1000, x_s([inlet_idx{:} find(barrier_volume<0)']),'o')
             drawnow
         end
@@ -492,7 +492,6 @@ for i=2:length(t), % years
     end
 
 end
-
 
 b_out = v2struct({'Qoverwash','x_t_save','x_s_save','x_b_save','h_b_save','s_sf_save','z0','d_sf','k_sf','s_sf_eq','fieldNames'});
 
@@ -503,29 +502,30 @@ if bseed % [KA]
 
 end
 
-if sedstrat_on,
-
+if sedstrat_on
+    
     %correct for last fill
     [fill_x,fill_y] = find(diff(double([zeros(ny,1), c_idx]),1,2) == -4);
-
+    
     if isempty(di_eq), di_eq = 2; end
-
+    
     for kk = 1:length(fill_x)
         c_idx(fill_x(kk),max(1,(fill_y(kk)-round(mean(di_eq/dz_strat)))):size(c_idx,2)) = 0;
     end
-
-    b_out.c_idx = c_idx;
+    
+    b_out.c_idx = c_idx; 
     b_out.bar_strat_z = z_strat;
     b_out.bar_strat_x = bar_strat_x;
 end
-if inlet_model_on,
+
+if inlet_model_on
     b_out.inlet_age = cell2mat(inlet_age(~cellfun(@isempty,inlet_age)));
     b_out.inlet_nr = inlet_nr;
     b_out.inlet_migr = inlet_migr;
     b_out.inlet_ai = inlet_ai;
     b_out.inlet_alpha = inlet_alpha;
     b_out.inlet_beta = inlet_beta;
-    b_out.inlet_delta = inlet_delta;
+    b_out.inlet_delta = inlet_delta; 
     b_out.inlet_Qs_in = inlet_Qs_in;
     b_out.Qinlet = Qinlet/dt; %put into m3/yr
     b_out.dt = dt;
