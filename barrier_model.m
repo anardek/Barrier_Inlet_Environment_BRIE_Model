@@ -55,7 +55,7 @@ x_t_save = zeros(ny,length(1:dtsave:nt),'int32'); x_t_save(:,1) = x_t;
 x_s_save = zeros(ny,length(1:dtsave:nt),'int32'); x_s_save(:,1) = x_s;
 x_b_save = zeros(ny,length(1:dtsave:nt),'int32'); x_b_save(:,1) = x_b;
 h_b_save = zeros(ny,length(1:dtsave:nt),'single'); h_b_save(:,1) = h_b;
-s_sf_save = zeros(ny,length(1:dtsave:nt),'single'); s_sf_save(:,1) = s_sf_eq;
+s_sf_save = zeros(ny,length(1:dtsave:nt),'single'); s_sf_save(:,1) = d_sf / (x_s - x_t);  % added by KA to represent the actual initial s_sf
 
 % for seeding brie.py for comparison runs [KA]
 if bseed
